@@ -33,19 +33,39 @@ module.exports = ({app, db}) => {
     });
 
     // real api :
-    app.get("/search", private, (req, res) => {
-        console.log(req.query);
-        res.json({
-            google: null,
-            microsoft: null,
-            apple: null
+    app.get("/pshape", private, (req, res) => {
+        db.api.getPshape((err, rows) => {
+            res.json(JSON.parse(rows[0].shape));
         })
     });
-    // patients :
-    app.get("/pat", (req, res) => {
-        res.end("what ?!")
+    app.get("/search", private, (req, res) => {
+        db.api.searchPatient(req.query.q, (err, rows) => {
+            var pats = {};
+            for(var pat of rows) {
+                pats[`${pat.id} ${pat.firstname} ${pat.lastname} ${pat.meli}`] = null;
+            }
+            res.json(pats);
+        });
     });
-
+    // patients :
+    app.get("/pat", private, (req, res) => {
+        if(req.query.q !== undefined) db.api.searchPatient(req.query.q, (err, rows) => {
+            return res.json(rows[0]);
+        });
+        if(req.query.id !== undefined) db.api.getPatient(req.query.id, (err, rows) => {
+            return res.json(rows[0]);
+        });
+    });
+    app.post("/pat/add", private, (req, res) => {
+        db.api.addPatient(req.body, (err, rows) => {
+            res.json({err, rows});
+        });
+    });
+    app.post("/pat/edit", private, (req, res) => {
+        db.api.editPatient(req.body, (err, rows) => {
+            res.json({err, rows});
+        });       
+    });
     // users :
     app.get("/user", (req, res) => {});
 }

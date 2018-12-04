@@ -5,7 +5,7 @@ db.serialize(function() {
     db.run(
     `CREATE TABLE pts(
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        meli INTEGER,
+        meli TEXT,
         firstname TEXT,
         lastname TEXT,
         gender TEXT,
@@ -16,8 +16,13 @@ db.serialize(function() {
     )`);
     db.run(
         `CREATE TABLE struct(
-            pts TEXT,
-            visit TEXT
+            name TEXT,
+            shape TEXT
+        )`);
+    db.run(
+        `INSERT INTO struct VALUES(
+            'patient_data',
+            '{"G6PD":"box","ASM":"box","oper":"box","more":"text"}'
         )`);
     db.run(
     `CREATE TABLE user(
