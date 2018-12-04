@@ -1,9 +1,13 @@
 const passport = require('passport');
+function private(req, res, next) {
+    if(!req.user) return res.redirect("/login");
+    next();
+}
 
 module.exports = ({app, db}) => {
-    app.get("/ping", (req, res) => {
+    app.get("/ping", private, (req, res) => {
         console.log(req.user.username, "pinged !");
-        return res.end("pong " + (req.user ? req.user.firstname : "stranger"));
+        return res.end("pong " + req.user.firstname);
     });
 
     app.post('/login', passport.authenticate('local', { failureRedirect: "/login"}), (req, res) => {
@@ -23,16 +27,24 @@ module.exports = ({app, db}) => {
         return res.redirect("/app");
     });
 
-    app.get('/app', (req, res) => {
-        if(!req.user) return res.redirect("/login");
+    app.get('/app', private, (req, res) => {
         console.log(req.user.username, "logged in !");
         return res.sendFile("index.html", { root: __dirname + "/../www/" });
     });
 
     // real api :
-
+    app.get("/search", private, (req, res) => {
+        console.log(req.query);
+        res.json({
+            google: null,
+            microsoft: null,
+            apple: null
+        })
+    });
     // patients :
-    app.get("/pat", (req, res) => {});
+    app.get("/pat", (req, res) => {
+        res.end("what ?!")
+    });
 
     // users :
     app.get("/user", (req, res) => {});

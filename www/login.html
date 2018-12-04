@@ -16,15 +16,15 @@
     <div class="container">
         <div class="row">
             <div class="col s10 offset-s1 m6 offset-m3">
-                <p>ورود</p>
+                <p class="center-align">ورود</p>
                 <form class="col s10 offset-s1" action="/login" method="post">
-                    <div>
-                        <label>نام کاربری</label>
-                        <input type="text" name="username"/>
+                    <div class="input-field col s12">
+                        <input id="username" type="text" name="username"/>
+                        <label for="username">نام کاربری</label>
                     </div>
-                    <div>
-                        <label>کلمه عبور</label>
-                        <input type="password" name="password"/>
+                    <div class="input-field col s12">
+                        <input id="password" type="password" name="password"/>
+                        <label for="password">کلمه عبور</label>
                     </div>
                     <div>
                         <input class="btn waves-effect waves-teal" type="submit" value="ورود"/>

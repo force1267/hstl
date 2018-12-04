@@ -6,12 +6,27 @@
     <link type="text/css" rel="stylesheet" href="/public/materialize/css/materialize.min.css"  media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ALPHA Manager</title>
+    <title>Manager</title>
 </head>
 <body>
     <script src="/public/index.js"></script>
-    the app
-    
+    <div class="container">
+        <div class="row">
+            <div class="input-field col s10 m8 offset-m2">
+                <!-- <i class="material-icons prefix">search</i> -->
+                <input type="text" id="search" name="search" class="autocomplete" on>
+                <label for="search">جستجو</label>
+            </div>
+            <div class="input-field col s2 hide-on-med-and-up" id="search-submit">
+                <button class="btn waves-effect waves-teal" type="button">
+                    <i class="material-icons">search</i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <!-- cards here -->
+        </div>
+    </div>
     <script type="text/javascript" src="/public/materialize/js/materialize.min.js"></script>
 </body>
 </html>

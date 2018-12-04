@@ -5,6 +5,7 @@ db.serialize(function() {
     db.run(
     `CREATE TABLE pts(
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        meli INTEGER,
         firstname TEXT,
         lastname TEXT,
         gender TEXT,
@@ -13,6 +14,11 @@ db.serialize(function() {
         visit TEXT,
         data TEXT
     )`);
+    db.run(
+        `CREATE TABLE struct(
+            pts TEXT,
+            visit TEXT
+        )`);
     db.run(
     `CREATE TABLE user(
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
