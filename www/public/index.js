@@ -34,10 +34,22 @@ document.addEventListener('DOMContentLoaded', function main() {
     }
 });
 function closeWS() {
-    document.getElementById("ws").innerHTML = ""
+    document.getElementById("ws").innerHTML = "";
+    curPatId = null;
 }
 
 var curPatId = null; // current showing patient id
+function deletePatient() {
+    if(confirm("آیا میخواهید این بیمار را حذف کنید ؟") && curPatId!==null) {
+        fetch(`/pat?id=${curPatId}`, {
+            method: "DELETE",
+            redirect: "follow"
+        }).then(res => {
+            closeWS();
+            alert("بیمار حذف شد");
+        });
+    }
+}
 function editPatient() {
     var pat = {
         id: curPatId,
@@ -167,7 +179,8 @@ function showPatient(pat) {
             }
         }
     }
-    ws.appendChild(makeIconButton("edit", "editPatient()", "col s1 offset-s10"));
+    ws.appendChild(makeIconButton("edit", "editPatient()", "col s1 offset-s9"));
+    ws.appendChild(makeIconButton("delete", "deletePatient()"));
     ws.appendChild(makeIconButton("close", "closeWS()"));
     M.updateTextFields();
 }

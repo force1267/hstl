@@ -38,6 +38,9 @@ db.api = {
     },
     editPatient(pat ,cb) {
         db.all(`UPDATE pts SET firstname = '${pat.firstname}', lastname ='${pat.lastname}', meli = '${pat.meli}', phone = '${pat.phone}', gender = '${pat.gender}', data = '${pat.data}' WHERE id = ${pat.id}`, [], cb);
+    },
+    deletePatient(id, cb) {
+        db.all(`DELETE FROM pts WHERE id = ${id}`, [], cb);
     }
 };
 

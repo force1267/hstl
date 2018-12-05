@@ -66,6 +66,11 @@ module.exports = ({app, db}) => {
             res.json({err, rows});
         });       
     });
+    app.delete("/pat", private, (req, res) => {
+        db.api.deletePatient(req.query.id, (err, rows) => {
+            res.json({err, rows});
+        })
+    });
     // users :
     app.get("/user", (req, res) => {});
 }
