@@ -6,7 +6,7 @@
   "scripts": {
     "remove-db": "node main.js --remove-db",
     "test": "nodemon main.js 8080",
-    "start": "nodemon main.js"
+    "start": "node main.js 5000"
   },
   "keywords": [],
   "author": "force1267@gmail.com",
