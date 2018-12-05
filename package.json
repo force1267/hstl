@@ -6,7 +6,7 @@
   "scripts": {
     "remove-db": "node main.js --remove-db",
     "test": "nodemon main.js 8080",
-    "start": "node main.js 5000"
+    "start": "node main.js"
   },
   "engines": {
     "node": "10.9.0"

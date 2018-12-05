@@ -24,7 +24,7 @@ if (!fs.existsSync("./DB")) {
 
 // server
 const {server, db} = require("./server/server.js");
-const port = process.argv[2] || process.env.PORT || 8080;
+const port = process.env.PORT || process.argv[2] || 8080;
 server.listen(port);
 console.log(`listening to ${port}`);
 
