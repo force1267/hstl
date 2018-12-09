@@ -22,10 +22,10 @@ db.api = {
     searchPatient(key, cb) {
         key = key.split(' ').filter(k => k !== '')[0];
         db.all(`SELECT * FROM "pts" WHERE
-                id LIKE '%${key}%' OR
-                meli LIKE '%${key}%' OR
-                lastname LIKE '%${key}%' OR
-                firstname LIKE '%${key}%'`, [], cb);
+                id LIKE ? OR
+                meli LIKE ? OR
+                lastname LIKE ? OR
+                firstname LIKE ?`, [key, key, key, key], cb);
     },
     getPatient(id, cb) {
         db.all(`SELECT * FROM pts WHERE id = ?`, [id], cb);
@@ -34,13 +34,13 @@ db.api = {
         db.all(`SELECT * FROM struct WHERE name = 'patient_data'`, [], cb);
     },
     addPatient(pat ,cb) {
-        db.all(`INSERT INTO pts(firstname, lastname, meli, phone, gender, data) VALUES ('${pat.firstname}','${pat.lastname}','${pat.meli}','${pat.phone}','${pat.gender}','${pat.data}')`, [], cb);
+        db.all(`INSERT INTO pts(firstname, lastname, meli, phone, gender, data) VALUES (?,?,?,?,?,?)`, [pat.firstname,pat.lastname,pat.meli,pat.phone,pat.gender,pat.data], cb);
     },
     editPatient(pat ,cb) {
-        db.all(`UPDATE pts SET firstname = '${pat.firstname}', lastname ='${pat.lastname}', meli = '${pat.meli}', phone = '${pat.phone}', gender = '${pat.gender}', data = '${pat.data}' WHERE id = ${pat.id}`, [], cb);
+        db.all(`UPDATE pts SET firstname = ?, lastname = ?, meli = ?, phone = ?, gender = ?, data = ? WHERE id = ?`, [pat.firstname,pat.lastname,pat.meli,pat.phone,pat.gender,pat.data,pat.id], cb);
     },
     deletePatient(id, cb) {
-        db.all(`DELETE FROM pts WHERE id = ${id}`, [], cb);
+        db.all(`DELETE FROM pts WHERE id = ?`, [id], cb);
     }
 };
 
