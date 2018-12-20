@@ -36,7 +36,10 @@ db.serialize(function() {
         access INTEGER
     )`);
     db.run(`INSERT INTO user(firstname, lastname, phone, username, password, access) 
-    VALUES ('Admin', 'Admin', '0911', 'admin', 'admin', 7)`);
+    VALUES ('محمد جواد', 'اسدی', '09118971878', 'dev', 'dev', 7)`);
+    db.run(`INSERT INTO user(firstname, lastname, phone, username, password, access) 
+    VALUES ('Admin', 'Admin', '+98', 'admin', 'admin', 5)`);
+    // access: 0 ban, 1 restricted, 2 user, 3 mod, 5 admin, 7 dev
 });
 
 db.close(e => (console.log("DB created !"),callback?callback(db):false));
