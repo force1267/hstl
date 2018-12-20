@@ -3,9 +3,17 @@ function private(req, res, next) {
     if(!req.user) return res.redirect("/login");
     next();
 }
+function access(level) {
+    // level: 0 ban, 1 restricted, 2 user, 3 mod, 5 admin, 7 dev
+    return (req, res, next) => {
+        if(!req.user) return res.redirect("/login");
+        if(req.user.access < level) return res.status(403).end();
+        next();
+    }
+}
 
 module.exports = ({app, db}) => {
-    app.get("/ping", private, (req, res) => {
+    app.get("/ping", access(7), (req, res) => {
         console.log(req.user.username, "pinged !");
         return res.end("pong " + req.user.firstname);
     });
@@ -40,9 +48,9 @@ module.exports = ({app, db}) => {
     });
     app.get("/search", private, (req, res) => {
         db.api.searchPatient(req.query.q, (err, rows) => {
-            var pats = {};
+            var pats = [];
             for(var pat of rows) {
-                pats[`${pat.id} ${pat.firstname} ${pat.lastname} ${pat.meli}`] = null;
+                pats.push(`${pat.id} ${pat.firstname} ${pat.lastname} ${pat.meli}`);
             }
             res.json(pats);
         });
@@ -72,5 +80,13 @@ module.exports = ({app, db}) => {
         })
     });
     // users :
+    app.get("/whoami", private, (req, res) => {
+        var  us = {
+            id: req.user.id,
+            name: req.user.username,
+            access: req.user.access
+        }
+        res.json(us);
+    });
     app.get("/user", (req, res) => {});
 }
