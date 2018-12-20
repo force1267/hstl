@@ -196,6 +196,7 @@ function showSettings() {
     // TODO
     closeWS();
     var ws = document.getElementById("ws");
+    ws.appendChild(makeP("تنظیمات", "center-align"));
     ws.appendChild(makeP("لیستی از تمام بیماران دریافت کنید.", "center-align"));
     ws.appendChild(makeButton("list", "لیست بیماران", "showAllPatients()", "center-align"));
     ws.appendChild(makeP("کلمه عبورتان را عوض کنید.", "center-align"));
@@ -211,6 +212,8 @@ function showSettings() {
     mod.appendChild(makeP("اطلاعاتی که در مورد بیماران نگه میدارید را مدیریت کنید.", "center-align"));
     mod.appendChild(makeButton("format_list_numbered", "مدیریت اطلاعات", "showEditShapePanel()", "center-align"));
     var admin = document.createElement('div');
+    admin.appendChild(makeP("لیست بیماران را به صورت مجموعه‌ای در قالب فایل excel اضافه کنید.", "center-align"));
+    admin.appendChild(makeButton("grid_on", "بارگذاری excel", "uploadExcel()", "center-align"));
     admin.appendChild(makeP("کاربران برنامه را مدیریت کنید. کلمه های عبور را تغییر دهید یا کاربر جدید اضافه کنید.", "center-align"));
     admin.appendChild(makeButton("group", "کاربران", "showUsersPanel()", "center-align"));
     admin.appendChild(makeP("از بانک اطلاعات نسخه پشتیبان بگیرید یا یک نسخه پشتیبان را بازنشانی کنید.", "center-align"));
@@ -220,6 +223,8 @@ function showSettings() {
     dev.appendChild(makeP("سلام برنامه نویس !", "center-align"));
     dev.appendChild(makeButton("priority_high", "Factory Reset", "resetDB()", "center-align"));
     dev.appendChild(makeButton("http", "ping", "window.location.replace('/ping')", "center-align"));
+
+    ws.appendChild((e=>(e.innerText = "نرم افزار مدیریت اطلاعات بیماران. دانشگاه مازندران. ۱۳۹۷ نسخه آزمایشی",e))(document.createElement('p')));
 
     fetch("/whoami").then(r => r.json()).then(r => {
         if(r.access >= 3) {
@@ -250,6 +255,9 @@ function showUsersPanel() {
     ws.innerHTML = "لیست کاربران";
 }
 function changePassword() {
+    // TODO
+}
+function uploadExcel() {
     // TODO
 }
 function downloadDB() {
