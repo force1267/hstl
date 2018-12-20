@@ -20,12 +20,19 @@ db.api = {
         });
     },
     searchPatient(key, cb) {
-        key = key.split(' ').filter(k => k !== '')[0];
-        db.all(`SELECT * FROM "pts" WHERE
+        // var keys = key.split(' ').filter(k => k !== '');
+        if(key[0] == "@") {
+            key = key.split(' ')[0].slice(1);
+            db.all(`SELECT * FROM "pts" WHERE id LIKE ?`, [key], cb);
+        } else {
+            key += "%";
+            db.all(`SELECT * FROM "pts" WHERE
                 id LIKE ? OR
                 meli LIKE ? OR
                 lastname LIKE ? OR
                 firstname LIKE ?`, [key, key, key, key], cb);
+        }
+        
     },
     getPatient(id, cb) {
         db.all(`SELECT * FROM pts WHERE id = ?`, [id], cb);
