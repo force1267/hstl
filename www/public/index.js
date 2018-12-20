@@ -9,9 +9,13 @@ document.addEventListener('DOMContentLoaded', function main() {
         var search_instace = M.Autocomplete.getInstance(search);
         var submit = document.getElementById("search-submit");
         search.oninput = function searchUpdateData() {
-            if(search.value.length >= 3) {
+            if(search.value.length >= 1) {
                 fetch(`/search?q=${search.value}`).then(res => res.json()).then(j => {
-                    search_instace.updateData(j);
+                    var o = {};
+                    for(var i of j) {
+                        o["@" + i] = null;
+                    }
+                    search_instace.updateData(o);
                     // search_instace.close();
                     // search_instace.open();
                 });
@@ -31,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function main() {
         }
 
         document.getElementById("button_add").onclick = showAddPatientPanel;
+        document.getElementById("button_settings").onclick = showSettings;
     }
 });
 function closeWS() {
@@ -184,6 +189,99 @@ function showPatient(pat) {
     ws.appendChild(makeIconButton("close", "closeWS()"));
     M.updateTextFields();
 }
+
+
+
+function showSettings() {
+    // TODO
+    closeWS();
+    var ws = document.getElementById("ws");
+    ws.appendChild(makeP("لیستی از تمام بیماران دریافت کنید.", "center-align"));
+    ws.appendChild(makeButton("list", "لیست بیماران", "showAllPatients()", "center-align"));
+    ws.appendChild(makeP("کلمه عبورتان را عوض کنید.", "center-align"));
+    ws.appendChild(makeInput("کلمه عبور جدید", "", "col s10 offset-s1"));
+    ws.appendChild(makeInput("تکرار کلمه عبور جدید", "", "col s10 offset-s1"));
+    ws.appendChild(makeButton("vpn_key", "تغییر", "changePassword()", "center-align"));
+    var access = document.createElement('div');
+    ws.appendChild(access);
+    ws.appendChild(makeP("خروج از برنامه.", "center-align"));
+    ws.appendChild(makeButton("logout", "خروج", "logout()", "center-align"));
+
+    var mod = document.createElement('div');
+    mod.appendChild(makeP("اطلاعاتی که در مورد بیماران نگه میدارید را مدیریت کنید.", "center-align"));
+    mod.appendChild(makeButton("format_list_numbered", "مدیریت اطلاعات", "showEditShapePanel()", "center-align"));
+    var admin = document.createElement('div');
+    admin.appendChild(makeP("کاربران برنامه را مدیریت کنید. کلمه های عبور را تغییر دهید یا کاربر جدید اضافه کنید.", "center-align"));
+    admin.appendChild(makeButton("group", "کاربران", "showUsersPanel()", "center-align"));
+    admin.appendChild(makeP("از بانک اطلاعات نسخه پشتیبان بگیرید یا یک نسخه پشتیبان را بازنشانی کنید.", "center-align"));
+    admin.appendChild(makeButton("cloud_download", "دریافت نسخه پشتیبان", "downloadDB()", "center-align"));
+    admin.appendChild(makeButton("cloud_upload", "بازنشانی نسخه پشتیبان", "uploadDB()", "center-align"));
+    var dev = document.createElement('div');
+    dev.appendChild(makeP("سلام برنامه نویس !", "center-align"));
+    dev.appendChild(makeButton("priority_high", "Factory Reset", "resetDB()", "center-align"));
+    dev.appendChild(makeButton("http", "ping", "window.location.replace('/ping')", "center-align"));
+
+    fetch("/whoami").then(r => r.json()).then(r => {
+        if(r.access >= 3) {
+            access.appendChild(mod)
+        }
+        if(r.access >= 5) {
+            access.appendChild(admin)
+        }
+        if(r.access >= 7) {
+            access.appendChild(dev)
+        }
+    })
+
+    M.updateTextFields();
+}
+
+function showAllPatients() {
+    // TODO
+    closeWS();
+    ws.innerHTML = "لیست بیماران";
+}
+function showEditShapePanel() {
+    // TODO
+}
+function showUsersPanel() {
+    // TODO
+    closeWS();
+    ws.innerHTML = "لیست کاربران";
+}
+function changePassword() {
+    // TODO
+}
+function downloadDB() {
+    // TODO
+}
+function uploadDB() {
+    // TODO
+}
+function resetDB() {
+    // TODO
+}
+function logout() {
+    fetch("/logout").then(r => window.location.replace("/"));
+}
+
+function makeP(text, cls = "") {
+    var p = document.createElement('p');
+    p.setAttribute("class", "flow-text " + cls);
+    p.setAttribute("dir", "rtl");
+    p.setAttribute("lang", "fa");
+    p.innerText = text;
+    return p;
+}
+function makeButton(icon, name, fn, cls = "") {
+    var div = document.createElement('div');
+    div.setAttribute("class", cls);
+    div.innerHTML = `
+    <a class="btn btn-flat teal waves-effect waves-light" onclick="${fn}" style="cursor:pointer">
+        ${icon != false ? `<i class="material-icons right">${icon}</i>` : ""}<span>${name}</span>
+    </a>`
+    return div;
+}
 function makeIconButton(icon, fn, cls = "col s1") {
     var div = document.createElement('div');
     div.setAttribute("class", "");
@@ -207,9 +305,9 @@ function makeCheckbox(name, df = false) {
     </p>`
     return div;
 }
-function makeInput(name, df = "") {
+function makeInput(name, df = "", cls = false) {
     var div = document.createElement('div');
-    div.setAttribute("class", "input-field col s6 offset-s3");
+    div.setAttribute("class", cls !== false ? "input-field " + cls : "input-field col s6 offset-s3");
     div.innerHTML = `
     <input id="${name}" name="${name}" type="text" value="${df?df:""}">
     <label for="${name}">${name}</label>`
