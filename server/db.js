@@ -1,6 +1,9 @@
 const sqlite3 = require("sqlite3");
 const db = new sqlite3.cached.Database("./DB");
 db.api = {
+    getAllUsers(cb) { // cb(err, user)
+        db.all(`SELECT * FROM user`, [], cb);
+    },
     getUserById(id, cb) { // cb(err, user)
         db.all(`SELECT * FROM user WHERE id = ?`, [id], (err, rows) => {
             if(rows.length === 1) {
@@ -18,6 +21,18 @@ db.api = {
                 cb(err, false);
             }
         });
+    },
+    addUser(user ,cb) {
+        db.all(`INSERT INTO user(firstname, lastname, username, phone, access, password) VALUES (?,?,?,?,?,?)`, [user.firstname,user.lastname,user.username,user.phone,parseInt(user.access),user.password], cb);
+    },
+    editUser(user ,cb) {
+        db.all(`UPDATE user SET firstname = ?, lastname = ?, username = ?, phone = ?, access = ?, password = ? WHERE id = ?`, [user.firstname,user.lastname,user.username,user.phone,parseInt(user.access),user.password,user.id], cb);
+    },
+    deleteUser(id, cb) {
+        db.all(`DELETE FROM user WHERE id = ?`, [id], cb);
+    },
+    changePassword(id, pass, cb) {
+        db.all("UPDATE user SET password = ? WHERE id = ?", [pass, id], cb);
     },
     searchPatient(key, cb) {
         // var keys = key.split(' ').filter(k => k !== '');

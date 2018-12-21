@@ -1,7 +1,5 @@
 var patient_shape = null;
 
-
-
 document.addEventListener('DOMContentLoaded', function main() {
     M.AutoInit();
     var search = document.querySelectorAll('.autocomplete')[0];
@@ -41,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function main() {
 function closeWS() {
     document.getElementById("ws").innerHTML = "";
     curPatId = null;
+    curUser = null;
 }
 
 var curPatId = null; // current showing patient id
@@ -154,7 +153,6 @@ function showAddPatientPanel() {
 }
 function showPatient(pat) {
     curPatId = pat.id;
-    console.log("is the patient", pat);
     var ws = document.getElementById("ws");
     ws.innerHTML = "";
     ws.appendChild(makeInput("نام", pat.firstname));
@@ -193,7 +191,6 @@ function showPatient(pat) {
 
 
 function showSettings() {
-    // TODO
     closeWS();
     var ws = document.getElementById("ws");
     ws.appendChild(makeP("تنظیمات", "center-align"));
@@ -202,7 +199,7 @@ function showSettings() {
     ws.appendChild(makeP("کلمه عبورتان را عوض کنید.", "center-align"));
     ws.appendChild(makeInput("کلمه عبور جدید", "", "col s10 offset-s1"));
     ws.appendChild(makeInput("تکرار کلمه عبور جدید", "", "col s10 offset-s1"));
-    ws.appendChild(makeButton("vpn_key", "تغییر", "changePassword()", "center-align"));
+    ws.appendChild(makeButton("vpn_key", "تغییر", `changePassword('کلمه عبور جدید', 'تکرار کلمه عبور جدید')`, "center-align"));
     var access = document.createElement('div');
     ws.appendChild(access);
     ws.appendChild(makeP("خروج از برنامه.", "center-align"));
@@ -242,20 +239,177 @@ function showSettings() {
 }
 
 function showAllPatients() {
-    // TODO
     closeWS();
-    ws.innerHTML = "لیست بیماران";
+    var ws = document.getElementById("ws");
+    var coll = document.createElement('div');
+    coll.setAttribute("class", "collection with-header");
+    coll.setAttribute("dir", "rtl");
+    var header = document.createElement('div');
+    header.setAttribute("class", "collection-header");
+    header.innerHTML = `<div class="collection-header"><h4>بیماران</h4></div>`;
+    coll.appendChild(header);
+    ws.appendChild(coll);
+    fetch("/pat?all=1").then(r => r.json()).then(rows => {
+        for(var pat of rows) {
+            var item = document.createElement('a');
+            item.pat = pat;
+            item.setAttribute("class", "collection-item");
+            item.innerText = `@${pat.id} ${pat.firstname} ${pat.lastname} ${pat.meli}`;
+            coll.appendChild(item);
+            // item.setAttribute("href", "#!");
+            item.onclick = e => showPatient(e.target.pat);
+        }
+    })
 }
 function showEditShapePanel() {
     // TODO
 }
-function showUsersPanel() {
-    // TODO
-    closeWS();
-    ws.innerHTML = "لیست کاربران";
+
+var curUser = null; // current showing user
+function deleteUser() {
+    if(confirm("آیا میخواهید این کاربر را حذف کنید ؟") && curUser!==null) {
+        fetch(`/user?id=${curUser.id}`, {
+            method: "DELETE",
+            redirect: "follow"
+        }).then(res => {
+            closeWS();
+            alert("کاربر حذف شد");
+        });
+    }
 }
-function changePassword() {
-    // TODO
+function editUser() {
+    var user = curUser;
+    var newUser = {
+        id: user.id,
+        password: document.getElementById("کلمه عبور").value,
+        firstname: document.getElementById("نام").value,
+        lastname: document.getElementById("نام خانوادگی").value,
+        phone: document.getElementById("تلفن").value,
+        username: document.getElementById("نام کاربری").value,
+        access: document.getElementById("دسترسی").value,
+    };
+    fetch("/whoami").then(r => r.json()).then(me => {
+        if(me.access < parseInt(newUser.access)){
+            alert("دسترسی کاربر نمیتواند بیشتر از شما باشد.");
+        } else if(newUser.password === "") {
+            alert("کلمه عبور جدید انتخاب کنید.");
+        } else fetch("/user/edit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            redirect: "follow",
+            body: JSON.stringify(newUser),
+        }).then(res => {
+            closeWS();
+            alert("مشخصات کاربر تغییر کرد");
+        });
+    });
+}
+function addNewUser() {
+    var newUser = {
+        password: document.getElementById("کلمه عبور").value,
+        firstname: document.getElementById("نام").value,
+        lastname: document.getElementById("نام خانوادگی").value,
+        phone: document.getElementById("تلفن").value,
+        username: document.getElementById("نام کاربری").value,
+        access: document.getElementById("دسترسی").value,
+    };
+    fetch("/whoami").then(r => r.json()).then(me => {
+        if(me.access < parseInt(newUser.access)){
+            alert("دسترسی کاربر نمیتواند بیشتر از شما باشد.");
+        } else if(newUser.password === "") {
+            alert("کلمه عبور جدید انتخاب کنید.");
+        } else fetch("/user/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            redirect: "follow",
+            body: JSON.stringify(newUser),
+        }).then(res => {
+            closeWS();
+            alert("کاربر جدید اضافه شد");
+        });
+    });
+}
+function showAddUserPanel() {
+    closeWS();
+    var ws = document.getElementById("ws");
+    ws.innerHTML = "";
+    ws.appendChild(makeInput("نام"));
+    ws.appendChild(makeInput("نام خانوادگی"));
+    ws.appendChild(makeInput("نام کاربری"));
+    ws.appendChild(makeInput("تلفن"));
+    ws.appendChild(makeInput("دسترسی"));
+    ws.appendChild(makeInput("کلمه عبور"));
+    
+    ws.appendChild(makeIconButton("add", "addNewUser()", "col s1 offset-s10"));
+    ws.appendChild(makeIconButton("close", "closeWS()"));
+    M.updateTextFields();
+}
+function showUser(user) {
+    fetch("/whoami").then(r => r.json()).then(me => {
+        if(me.access >= user.access) {
+            closeWS();
+            curUser = user;
+            var ws = document.getElementById("ws");
+            ws.appendChild(makeInput("نام", user.firstname));
+            ws.appendChild(makeInput("نام خانوادگی", user.lastname));
+            ws.appendChild(makeInput("تلفن", user.phone));
+            ws.appendChild(makeInput("نام کاربری", user.username));
+            ws.appendChild(makeInput("دسترسی", user.access));
+            ws.appendChild(makeInput("کلمه عبور", ""));
+
+            ws.appendChild(makeIconButton("edit", "editUser()", "col s1 offset-s9"));
+            ws.appendChild(makeIconButton("delete", "deleteUser()"));
+            ws.appendChild(makeIconButton("close", "closeWS()"));
+            M.updateTextFields();
+        } else {
+            alert("شما نمیتوانید اطلاعات کاربری با دسترسی بیشتر از خودتان را تغییر دهید");
+        }
+    })
+}
+function showUsersPanel() {
+    closeWS();
+    var ws = document.getElementById("ws");
+    var coll = document.createElement('div');
+    coll.setAttribute("class", "collection with-header");
+    coll.setAttribute("dir", "rtl");
+    var header = document.createElement('div');
+    header.setAttribute("class", "collection-header");
+    header.innerHTML = `<div class="collection-header"><h4>کاربران</h4></div>`;
+    coll.appendChild(header);
+    ws.appendChild(coll);
+    fetch("/user?all=1").then(r => r.json()).then(rows => {
+        for(var user of rows) {
+            var item = document.createElement('a');
+            item.user = user;
+            item.setAttribute("class", "collection-item");
+            item.innerText = `@${user.id} ${user.firstname} ${user.lastname} حساب کاربری:${user.username} تماس:${user.phone} دسترسی:${user.access}`;
+            coll.appendChild(item);
+            // item.setAttribute("href", "#!");
+            item.onclick = e => showUser(e.target.user);
+        }
+    });
+    ws.appendChild(makeButton("add", "کاربر جدید", "showAddUserPanel()", "center-align"));
+}
+function changePassword(i1, i2) {
+    var v1 = document.getElementById(i1).value;
+    var v2 = document.getElementById(i2).value;
+    document.getElementById(i1).value = document.getElementById(i2).value = "";
+    if(v1 === v2) {
+        fetch("/cp", {
+            method: "POST",
+            body: JSON.stringify({ password: v1 }),
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            redirect: "follow",
+        }).then(r=>alert("رمز عبور تغییر کرد"));
+    } else {
+        alert("ورودی ها باید یکی باشند !");
+    }
 }
 function uploadExcel() {
     // TODO

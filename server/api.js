@@ -63,6 +63,9 @@ module.exports = ({app, db}) => {
         if(req.query.id !== undefined) db.api.getPatient(req.query.id, (err, rows) => {
             return res.json(rows[0]);
         });
+        if(req.query.all !== undefined) db.api.searchPatient("", (err, rows) => {
+            return res.json(rows);
+        });
     });
     app.post("/pat/add", private, (req, res) => {
         db.api.addPatient(req.body, (err, rows) => {
@@ -88,5 +91,48 @@ module.exports = ({app, db}) => {
         }
         res.json(us);
     });
-    app.get("/user", (req, res) => {});
+    app.post("/cp", private, (req, res) => {
+        if(req.body.id !== undefined) {
+            db.api.changePassword(req.user.id, req.body.password, (err, rows) => {
+                res.json({err, rows});
+            });
+        } else {
+            db.api.getUserById(req.body.id, (err, target) => {
+                access(target.access)(req, res, () => {
+                    db.api.changePassword(target.id, req.body.password, (err, rows) => {
+                        res.json({err, rows});
+                    });
+                });
+            });
+        }
+        
+    });
+    app.get("/user", access(5), (req, res) => {
+        if(req.query.all !== undefined) db.api.getAllUsers((err, rows) => {
+            return res.json(rows.map(r => (r.password = null, r)));
+        });
+    });
+    app.post("/user/add", access(5), (req, res) => {
+        access(req.body.access)(req, res, () => {
+            db.api.addUser(req.body, (err, rows) => {
+                res.json({err, rows});
+            });
+        });
+    });
+    app.post("/user/edit", access(5), (req, res) => {
+        access(req.body.access)(req, res, () => {
+            db.api.editUser(req.body, (err, rows) => {
+                res.json({err, rows});
+            });    
+        });   
+    });
+    app.delete("/user", access(5), (req, res) => {
+        db.api.getUserById(req.query.id, (err, target) => {
+            access(target.access)(req, res, () => {
+                db.api.deleteUser(target.id, (err, rows) => {
+                    res.json({err, rows});
+                });
+            });
+        });
+    });
 }
