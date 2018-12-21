@@ -37,8 +37,6 @@ db.serialize(function() {
     )`);
     db.run(`INSERT INTO user(firstname, lastname, phone, username, password, access) 
     VALUES ('محمد جواد', 'اسدی', '09118971878', 'dev', 'dev', 7)`);
-    db.run(`INSERT INTO user(firstname, lastname, phone, username, password, access) 
-    VALUES ('Admin', 'Admin', '+98', 'admin', 'admin', 5)`);
     // access: 0 ban, 1 restricted, 2 user, 3 mod, 5 admin, 7 dev
 });
 
