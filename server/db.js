@@ -49,11 +49,14 @@ db.api = {
         }
         
     },
-    getPatient(id, cb) {
-        db.all(`SELECT * FROM pts WHERE id = ?`, [id], cb);
-    },
     getPshape(cb) {
         db.all(`SELECT * FROM struct WHERE name = 'patient_data'`, [], cb);
+    },
+    setPshape(ps, cb) {
+        db.all(`UPDATE struct SET shape = ? WHERE name = 'patient_data'`, [ps], cb);
+    },
+    getPatient(id, cb) {
+        db.all(`SELECT * FROM pts WHERE id = ?`, [id], cb);
     },
     addPatient(pat ,cb) {
         db.all(`INSERT INTO pts(firstname, lastname, meli, phone, gender, data) VALUES (?,?,?,?,?,?)`, [pat.firstname,pat.lastname,pat.meli,pat.phone,pat.gender,pat.data], cb);

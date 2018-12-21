@@ -14,7 +14,6 @@ function access(level) {
 
 module.exports = ({app, db}) => {
     app.get("/ping", access(7), (req, res) => {
-        console.log(req.user.username, "pinged !");
         return res.end("pong " + req.user.firstname);
     });
 
@@ -36,15 +35,32 @@ module.exports = ({app, db}) => {
     });
 
     app.get('/app', private, (req, res) => {
-        console.log(req.user.username, "logged in !");
         return res.sendFile("index.html", { root: __dirname + "/../www/" });
     });
 
-    // real api :
+    // helper :
     app.get("/pshape", private, (req, res) => {
         db.api.getPshape((err, rows) => {
             res.json(JSON.parse(rows[0].shape));
-        })
+        });
+    });
+    app.post("/pshape", access(3), (req, res) => {
+        db.api.getPshape((err, rows) => {
+            var shape = JSON.parse(rows[0].shape);
+            shape[req.body.data] = req.body.shape;
+            db.api.setPshape(JSON.stringify(shape), (err, rows) => {
+                res.json({err, rows});
+            });
+        });
+    });
+    app.delete("/pshape", access(5), (req, res) => {
+        db.api.getPshape((err, rows) => {
+            var shape = JSON.parse(rows[0].shape);
+            delete shape[req.query.data];
+            db.api.setPshape(JSON.stringify(shape), (err, rows) => {
+                res.send({err, rows});
+            });
+        });
     });
     app.get("/search", private, (req, res) => {
         db.api.searchPatient(req.query.q, (err, rows) => {

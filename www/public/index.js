@@ -261,8 +261,62 @@ function showAllPatients() {
         }
     })
 }
+function removePshape(data) {
+    if(confirm("آیا میخواهید این ورودی را حذف کنید ؟ بیمارانی که تا کنون ثبت شدند این اطلاعات را از دست نمیدهند.")) {
+        fetch(`/pshape?data=${data}`, {
+            method: "DELETE",
+            redirect: "follow"
+        }).then(res => {
+            closeWS();
+            alert("ورودی حذف شد");
+        });
+    }
+    showEditShapePanel();
+}
+function addShape(shape) {
+    var data = document.getElementById("نام ورودی").value;
+    if(data !== "") fetch("/pshape", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        redirect: "follow",
+        body: JSON.stringify({data, shape}),
+    }).then(res => {
+        showEditShapePanel();
+        alert("ورودی اضافه شد");
+    });
+    else alert("نام ورودی را وارد کنید");
+}
 function showEditShapePanel() {
-    // TODO
+    fetch("/whoami").then(res => res.json())
+    .then(me => fetch("/pshape").then(res => res.json()).then(ps => {
+        patient_shape = ps;
+        closeWS();
+        var ws = document.getElementById("ws");
+        ws.appendChild(makeP("اطلاعاتی که از بیماران نگه میدارید"));
+        var coll = document.createElement('ul');
+        coll.setAttribute("class", "collection");
+        coll.setAttribute("dir", "rtl");
+        ws.appendChild(coll);
+        for(var data in ps) {
+            var item = document.createElement('li');
+            if(me.access >= 5) {
+                item.data = data;
+                item.appendChild(makeIconButton("delete", `removePshape('${item.data}')`, "col s2"));
+            }
+            item.setAttribute("class", "collection-item");
+            item.innerHTML += `<span dir="rtl" class="right-align">${data} : ${ps[data] === "text" ? "متن" : "تیک"}</span>`;
+            coll.appendChild(item);
+        }
+        var adder = document.createElement('div');
+        adder.setAttribute("class", "row");
+        adder.setAttribute("dir", "rtl");
+        adder.appendChild(makeInput('نام ورودی', "", "col s10 offset-s1"))
+        adder.appendChild(makeButton("add", "تیک جدید", "addShape('box')", "col s6"));
+        adder.appendChild(makeButton("add", "متن جدید", "addShape('text')", "col s6"));
+        ws.appendChild(adder);
+    }));
 }
 
 var curUser = null; // current showing user
@@ -392,7 +446,10 @@ function showUsersPanel() {
             item.onclick = e => showUser(e.target.user);
         }
     });
-    ws.appendChild(makeButton("add", "کاربر جدید", "showAddUserPanel()", "center-align"));
+    var row = document.createElement('div');
+    row.setAttribute("class", "row");
+    row.appendChild(makeButton("add", "کاربر جدید", "showAddUserPanel()", "center-align"));
+    ws.appendChild(row);
 }
 function changePassword(i1, i2) {
     var v1 = document.getElementById(i1).value;
