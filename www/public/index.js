@@ -151,6 +151,52 @@ function showAddPatientPanel() {
     ws.appendChild(makeIconButton("close", "closeWS()"));
     M.updateTextFields();
 }
+var curPat;
+function showVisitPanel(visit, pat) {
+    var ws = document.getElementById("ws");
+    ws.innerHTML = "";
+    var div = document.createElement('div');
+    div.setAttribute("class", "input-field col s8 offset-s2");
+    div.innerHTML = `
+    <textarea id="ویزیت" name="ویزیت">${visit.data}</textarea>
+    <label for="ویزیت">${pat.firstname} ${pat.lastname} ( ${visit.date} )</label>`
+    ws.appendChild(div);
+    curPat = pat;
+    ws.appendChild(makeIconButton("arrow_back", "showPatient(curPat)", "col s1 offset-s10"));
+    
+    M.updateTextFields();
+}
+function addVisit() {
+    var pid = curPatId;
+    var data = document.getElementById("ویزیت جدید").value;
+    if(data !== "") fetch("/visit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        redirect: "follow",
+        body: JSON.stringify({data, pid}),
+    }).then(res => {
+        alert("ویزیت ثبت شد.");
+        showPatient(curPat);
+    });
+    
+}
+function addVisitPanel(pat) {
+    var ws = document.getElementById("ws");
+    ws.innerHTML = "";
+    var div = document.createElement('div');
+    div.setAttribute("class", "input-field col s8 offset-s2");
+    div.innerHTML = `
+    <textarea id="ویزیت جدید" name="ویزیت جدید"></textarea>
+    <label for="ویزیت جدید">${pat.firstname} ${pat.lastname} : ویزیت جدید</label>`
+    ws.appendChild(div);
+    curPat = pat;
+    ws.appendChild(makeIconButton("add", "addVisit()", "col s1 offset-s10"));
+    ws.appendChild(makeIconButton("arrow_back", "showPatient(curPat)"));
+    
+    M.updateTextFields();
+}
 function showPatient(pat) {
     curPatId = pat.id;
     var ws = document.getElementById("ws");
@@ -182,6 +228,27 @@ function showPatient(pat) {
             }
         }
     }
+
+    curPat = pat;
+    
+    var coll = document.createElement('div');
+    coll.setAttribute("class", "collection col s12");
+    coll.setAttribute("dir", "rtl");
+    ws.appendChild(makeButton("add", "ویزیت", "addVisitPanel(curPat)", "col s3 offset-s9"));
+    ws.appendChild(coll);
+    fetch(`/visit?id=${pat.id}`).then(r => r.json()).then(({rows}) => {
+        for(var i = rows.length - 1; i >= 0; i--) {
+            var visit = rows[i];
+            var item = document.createElement('a');
+            item.visit = visit;
+            item.setAttribute("class", "collection-item");
+            item.innerText = `${visit.date}`;
+            coll.appendChild(item);
+            // item.setAttribute("href", "#!");
+            item.onclick = e => showVisitPanel(e.target.visit, pat);
+        }
+    });
+    
     ws.appendChild(makeIconButton("edit", "editPatient()", "col s1 offset-s9"));
     ws.appendChild(makeIconButton("delete", "deletePatient()"));
     ws.appendChild(makeIconButton("close", "closeWS()"));

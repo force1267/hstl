@@ -98,6 +98,17 @@ module.exports = ({app, db}) => {
             res.json({err, rows});
         })
     });
+    app.get('/visit', access(5), (req, res) => {
+        db.api.getVisit(req.query.id, (err, rows) => {
+            res.json({err, rows});
+        });
+    });
+    app.post('/visit', access(3), (req, res) => {
+        console.log(req.body)
+        db.api.addVisit(req.body.pid, req.body.data, (err, rows) => {
+            res.json({err, rows});
+        });
+    });
     // users :
     app.get("/whoami", private, (req, res) => {
         var  us = {

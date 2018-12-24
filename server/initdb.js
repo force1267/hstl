@@ -11,9 +11,14 @@ db.serialize(function() {
         gender TEXT,
         phone TEXT,
 
-        visit TEXT,
         data TEXT
     )`);
+    db.run(
+        `CREATE TABLE visit(
+            pid INTEGER NOT NULL,
+            date DATETIME,
+            data TEXT
+        )`);
     db.run(
         `CREATE TABLE struct(
             name TEXT,

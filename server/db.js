@@ -65,7 +65,13 @@ db.api = {
         db.all(`UPDATE pts SET firstname = ?, lastname = ?, meli = ?, phone = ?, gender = ?, data = ? WHERE id = ?`, [pat.firstname,pat.lastname,pat.meli,pat.phone,pat.gender,pat.data,pat.id], cb);
     },
     deletePatient(id, cb) {
-        db.all(`DELETE FROM pts WHERE id = ?`, [id], cb);
+        db.all(`DELETE FROM pts WHERE id = ?; DELETE FROM visit WHERE pid = ?`, [id, id], cb);
+    },
+    getVisit(pid ,cb) {
+        db.all(`SELECT * FROM visit WHERE pid = ?`, [pid], cb);
+    },
+    addVisit(pid, data, cb) {
+        db.all(`INSERT INTO visit VALUES(?, datetime('now'), ?)`, [pid, data], cb);
     }
 };
 
